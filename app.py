@@ -278,16 +278,41 @@ if page == "Overview":
 elif page == "Import photos":
     st.markdown("<div class='hero'><div class='eyebrow'>Library intake</div><h1>Bring your memories in.</h1><p>Choose individual photos, upload an entire folder, or import a ZIP archive. PhotoMind will analyze each photo and suggest an organization.</p></div>", unsafe_allow_html=True)
     st.warning("AI analysis downloads the CLIP model the first time it runs. On free hosting, model startup and memory limits may affect performance.")
-    uploads = st.file_uploader("Choose photos or upload a folder", type=["jpg","jpeg","png","webp","bmp","tif","tiff","heic","heif"], accept_multiple_files="directory", help="Select individual photos or choose a folder to upload its images and subfolders.")
-    zip_upload = st.file_uploader("Or import a ZIP archive", type=["zip"], accept_multiple_files=False)
+    supported_types = ["jpg", "jpeg", "png", "webp", "bmp", "tif", "tiff", "heic", "heif"]
+    supported_suffixes = {".jpg", ".jpeg", ".png", ".webp", ".bmp", ".tif", ".tiff", ".heic", ".heif"}
+    st.markdown("#### 1. Upload individual photos")
+    uploads = st.file_uploader(
+        "Choose JPEG, PNG or other supported image files",
+        type=supported_types,
+        accept_multiple_files=True,
+        key="individual_photo_uploads",
+        help="Select one or more image files. Supported: JPG, JPEG, PNG, WEBP, BMP, TIF, TIFF, HEIC and HEIF.",
+    )
+    st.markdown("#### 2. Upload an entire folder")
+    folder_uploads = st.file_uploader(
+        "Choose a folder containing photos",
+        type=supported_types,
+        accept_multiple_files="directory",
+        key="photo_folder_uploads",
+        help="Select a folder to upload its supported images, including images in subfolders where supported by your browser.",
+    )
+    st.markdown("#### 3. Import a ZIP archive")
+    zip_upload = st.file_uploader(
+        "Choose a ZIP file containing photos",
+        type=["zip"],
+        accept_multiple_files=False,
+        key="photo_zip_upload",
+    )
     if st.button("✨ Analyze and organize", type="primary", use_container_width=True):
         batch = []
         if uploads:
-            batch.extend([(Path(u.name).name, get_bytes(u)) for u in uploads if Path(u.name).suffix.lower() in {".jpg", ".jpeg", ".png", ".webp", ".bmp", ".tif", ".tiff", ".heic", ".heif"}])
+            batch.extend([(Path(u.name).name, get_bytes(u)) for u in uploads if Path(u.name).suffix.lower() in supported_suffixes])
+        if folder_uploads:
+            batch.extend([(Path(u.name).name, get_bytes(u)) for u in folder_uploads if Path(u.name).suffix.lower() in supported_suffixes])
         if zip_upload:
             batch.extend(unpack_zip(zip_upload))
         if not batch:
-            st.error("Choose photos, upload a folder containing supported images, or select a ZIP archive first.")
+            st.error("Choose individual photos, select a folder containing supported images, or select a ZIP archive first.")
         else:
             progress = st.progress(0, text="Preparing your photos…")
             status = st.empty()
