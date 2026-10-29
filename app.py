@@ -276,18 +276,18 @@ if page == "Overview":
 
 # ----------------------------- Import -----------------------------
 elif page == "Import photos":
-    st.markdown("<div class='hero'><div class='eyebrow'>Library intake</div><h1>Bring your memories in.</h1><p>Choose images or a ZIP archive. PhotoMind will analyze each photo and suggest an organization.</p></div>", unsafe_allow_html=True)
+    st.markdown("<div class='hero'><div class='eyebrow'>Library intake</div><h1>Bring your memories in.</h1><p>Choose individual photos, upload an entire folder, or import a ZIP archive. PhotoMind will analyze each photo and suggest an organization.</p></div>", unsafe_allow_html=True)
     st.warning("AI analysis downloads the CLIP model the first time it runs. On free hosting, model startup and memory limits may affect performance.")
-    uploads = st.file_uploader("Choose photos", type=["jpg","jpeg","png","webp","bmp","tif","tiff","heic","heif"], accept_multiple_files=True, help="You can select multiple files at once.")
+    uploads = st.file_uploader("Choose photos or upload a folder", type=["jpg","jpeg","png","webp","bmp","tif","tiff","heic","heif"], accept_multiple_files="directory", help="Select individual photos or choose a folder to upload its images and subfolders.")
     zip_upload = st.file_uploader("Or import a ZIP archive", type=["zip"], accept_multiple_files=False)
     if st.button("✨ Analyze and organize", type="primary", use_container_width=True):
         batch = []
         if uploads:
-            batch.extend([(u.name, get_bytes(u)) for u in uploads])
+            batch.extend([(Path(u.name).name, get_bytes(u)) for u in uploads if Path(u.name).suffix.lower() in {".jpg", ".jpeg", ".png", ".webp", ".bmp", ".tif", ".tiff", ".heic", ".heif"}])
         if zip_upload:
             batch.extend(unpack_zip(zip_upload))
         if not batch:
-            st.error("Choose at least one image or ZIP archive first.")
+            st.error("Choose photos, upload a folder containing supported images, or select a ZIP archive first.")
         else:
             progress = st.progress(0, text="Preparing your photos…")
             status = st.empty()
