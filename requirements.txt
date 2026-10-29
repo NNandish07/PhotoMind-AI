@@ -1,9 +1,8 @@
-streamlit>=1.52,<2.0
-transformers>=4.41,<5.0
-torch>=2.2
-Pillow>=10.0
-pandas>=2.0
-numpy>=1.24
-safetensors>=0.4
-pillow-heif>=0.16
-facenet-pytorch>=2.6.0
+streamlit==1.42.2
+torch==2.6.0
+transformers==4.49.0
+Pillow>=10.4.0,<12
+pillow-heif>=0.18.0
+ImageHash==4.3.2
+numpy>=1.26.0,<2.2
+pandas>=2.2.0,<3
